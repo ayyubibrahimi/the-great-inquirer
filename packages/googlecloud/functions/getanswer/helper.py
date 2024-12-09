@@ -1,23 +1,11 @@
-from langchain.vectorstores.faiss import FAISS
+from langchain_community.vectorstores import FAISS
 from pathlib import Path
-# from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain_openai import OpenAIEmbeddings
-from langchain.chains import LLMChain, HypotheticalDocumentEmbedder
-from langchain.prompts import PromptTemplate
-# from langchain.chat_models import ChatOpenAI
-# from langchain_community.chat_models import ChatOpenAI
-from langchain_openai import ChatOpenAI
-# from langchain import OpenAI
-from langchain_community.llms import OpenAI
 
 import logging
 import pandas as pd
 
-
 logger = logging.getLogger(__name__)
-
-
-"""Parse field from JSON or raise error if missing"""
 
 
 def parse_field(request_json, field: str):
@@ -53,37 +41,8 @@ def get_dbs():
 
 
 def create_embeddings():
-    llm = ChatOpenAI(model="gpt-4")
-
     base_embeddings = OpenAIEmbeddings()
-
-    general_prompt_template = """
-    As an AI assistant, your role is to provide concise, balanced summaries from the transcripts of New Orleans City Council meetings in response to the user's query "{user_query}". Your response should not exceed one paragraph in length. If the available information from the transcripts is insufficient to accurately summarize the issue, respond with 'Insufficient information available.' If the user's query extends beyond the scope of information contained in the transcripts, state 'I don't know.'
-    Answer:"""
-
-    in_depth_prompt_template = """
-    As an AI assistant, use the New Orleans City Council transcript data that you were trained on to provide an in-depth and balanced response to the following query: "{user_query}" 
-    Answer:"""
-
-    general_prompt = PromptTemplate(
-        input_variables=["user_query"], template=general_prompt_template
-    )
-    in_depth_prompt = PromptTemplate(
-        input_variables=["user_query"], template=in_depth_prompt_template
-    )
-
-    llm_chain_general = LLMChain(llm=llm, prompt=general_prompt)
-    llm_chain_in_depth = LLMChain(llm=llm, prompt=in_depth_prompt)
-
-    general_embeddings = HypotheticalDocumentEmbedder(
-        llm_chain=llm_chain_general,
-        base_embeddings=base_embeddings,
-    )
-    in_depth_embeddings = HypotheticalDocumentEmbedder(
-        llm_chain=llm_chain_in_depth, base_embeddings=base_embeddings
-    )
-
-    return general_embeddings, in_depth_embeddings
+    return base_embeddings, base_embeddings
 
 
 def sort_retrieved_documents(doc_list):
